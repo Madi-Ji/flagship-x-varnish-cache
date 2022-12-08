@@ -1,0 +1,23 @@
+version: "3"
+services:
+  varnish:
+    image: varnish:stable
+    container_name: varnish
+    volumes:
+      - "./default.vcl:/etc/varnish/default.vcl"
+    ports:
+      - "80:80"
+    tmpfs:
+      - /var/lib/varnish:exec
+    environment:
+      - VARNISH_SIZE=2G
+    command: "-p default_keep=300"
+    depends_on:
+      - "php"
+  php:
+    image: php:8.1-apache
+    container_name: php
+    volumes:
+      - "./src/:/var/www/html/"
+    ports:
+      - "8080:80"
