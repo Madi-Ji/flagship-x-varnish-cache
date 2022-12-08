@@ -11,13 +11,12 @@ class Flagship
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://decision.flagship.io/v2/bk90qks1tlug042qsqn0/flags',
+            CURLOPT_URL => 'https://decision.flagship.io/v2/bk90qks1tlug042qsqng/flags',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 10,
+            CURLOPT_MAXREDIRS => 0,
+            CURLOPT_TIMEOUT => 2,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>
                 '{
@@ -31,7 +30,7 @@ class Flagship
                 }',
             CURLOPT_HTTPHEADER => [
                 'Connection: keep-alive',
-                'x-api-key: qE2fXJ77Si4lmDTeEqhAc7scNgNCwikR6YSHufRl',
+                'x-api-key: HwXaeJai242GCC0RGGOym57eSCEimA7A3tkDJbUG',
                 'Content-Type: application/json',
             ],
         ]);
