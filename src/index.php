@@ -12,12 +12,14 @@ try {
         $visitorId = $headers['x-fs-visitor'];
     }
 
-    $flagship->start(
-        $visitorId,
-        json_encode([
-            'nbBooking' => 4,
-        ])
-    );
+    if($_SERVER['REQUEST_METHOD'] === 'HEAD' || isset($headers['x-fs-experiences'])){
+        $flagship->start(
+            $visitorId,
+            json_encode([
+                'nbBooking' => 4,
+            ])
+        );
+    }
     $cacheKey = $flagship->getHashKey();
 
     if ($cacheKey === false) {
@@ -36,13 +38,14 @@ try {
         exit();
     }
 
-    header('Cache-Control: max-age=1, s-maxage=60');
+    header('Cache-Control: max-age=1, s-maxage=600');
 
-    echo '<pre>For ' . $visitorId . '<br>';
+    echo '<pre>';
 
-    var_dump(
-        $flagship->getFlag('restaurant_cta_review_text', 'Leave a Review')
-    );
+    if ($cacheKey == 'optout') {
+        echo 'Global Cache 🔥 <br />';
+    }
+    echo '<button>'.$flagship->getFlag('restaurant_cta_review_text', 'Leave a Review').'</button>';
 } catch (\Throwable $th) {
     throw $th;
 }
