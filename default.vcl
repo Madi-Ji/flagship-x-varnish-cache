@@ -137,15 +137,15 @@ sub vcl_recv {
 		if(req.http.Cookie ~ "fs-experiences"){
 			std.log("PARSE COOKIES");
 			# Original Regex => [aA-zZ\d\-]+@(([aA-zZ\d]+:[aA-zZ\d]+;?)+)
-			# With value URLencoded => ([aA-zZ\d\-]+)[@|%40](([aA-zZ\d]+[:|%3A][aA-zZ\d]+[\||%7C]?)+) => /1 + /2
+			# With value URLencoded => ([aA-zZ\d\-]+)[@|%40](([aA-zZ\d]+[:|%3A][aA-zZ\d]+[\||%7C]?)+) => /1 visitorID + /2 Exp-Cache-Key
 			set req.http.x-fs-experiences = regsub(req.http.Cookie, "(.*?)(fs-experiences=)([^;]*)(.*)$", "\3"); # Trunk Cookie to only fs_experiences cookie content
-			if(req.http.x-fs-experiences == regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([aA-zZ\d]+[:|%3A][aA-zZ\d]+[\||%7C]?)+)", "\2")) {
+			if(req.http.x-fs-experiences == regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([0-9a-v]{20}+[:|%3A][0-9a-v]{20}+[\||%7C]?)+)", "\2")) {
 				std.log("[FS] WARNING: Cookie malformed");
 				set req.http.x-fs-visitor = "ignore-me";
 				set req.http.x-fs-experiences = "optout";
 			} else {
-				set req.http.x-fs-visitor = regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([aA-zZ\d]+[:|%3A][aA-zZ\d]+[\||%7C]?)+)", "\1"); # Capture VisitorID
-				set req.http.x-fs-experiences = regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([aA-zZ\d]+[:|%3A][aA-zZ\d]+[\||%7C]?)+)", "\2"); # Capture [CacheKey]
+				set req.http.x-fs-visitor = regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([0-9a-v]{20}+[:|%3A][0-9a-v]{20}+[\||%7C]?)+)", "\1"); # Capture VisitorID
+				set req.http.x-fs-experiences = regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([0-9a-v]{20}+[:|%3A][0-9a-v]{20}+[\||%7C]?)+)", "\2"); # Capture [CacheKey]
 			}
 			std.log("HEADER AVAILABLE");
 		}
