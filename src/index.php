@@ -4,7 +4,7 @@ require_once './flagshipRequest.php';
 
 try {
     $headers = apache_request_headers();
-    $flagship = new Flagship('ENV_ID', 'API_KEY');
+    $flagship = new Flagship('bk90qks1tlug042qsqng', 'HwXaeJai242GCC0RGGOym57eSCEimA7A3tkDJbUG');
 
     if (!isset($headers['x-fs-visitor'])) {
         $visitorId = $flagship->generateUID();

@@ -2,16 +2,22 @@
 
 class Flagship
 {
-    private $envId = '';
-    private $apiKey = '';
+    private $envId;
+    private $apiKey;
+    
     protected $decision = null;
+
+    public function __construct($envId, $apiKey) {
+        $this->envId = $envId;
+        $this->apiKey = $apiKey;
+    }
 
     public function start($visitorID, $context)
     {
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://decision.flagship.io/v2/bk90qks1tlug042qsqng/flags',
+            CURLOPT_URL => 'https://decision.flagship.io/v2/' . $this->getEnvId() . '/flags',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_MAXREDIRS => 0,
             CURLOPT_TIMEOUT => 2,
@@ -30,7 +36,7 @@ class Flagship
                 }',
             CURLOPT_HTTPHEADER => [
                 'Connection: keep-alive',
-                'x-api-key: HwXaeJai242GCC0RGGOym57eSCEimA7A3tkDJbUG',
+                'x-api-key: ' . $this->getApiKey(),
                 'Content-Type: application/json',
             ],
         ]);
@@ -45,6 +51,16 @@ class Flagship
     public function getDecision()
     {
         return $this->decision;
+    }
+
+    public function getEnvId()
+    {
+        return $this->envId;
+    }
+
+    public function getApiKey()
+    {
+        return $this->apiKey;
     }
 
     public function getHashKey()
