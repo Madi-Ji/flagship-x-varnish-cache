@@ -1,25 +1,26 @@
 <?php
-require_once './user.php';
-require_once './flagshipRequest.php';
+require_once __DIR__ . '../vendor/autoload.php';
+
+use Flagship\Flagship;
+
+$envId = "bk90qks1tlug042qsqng";
+$apiKey = "HwXaeJai242GCC0RGGOym57eSCEimA7A3tkDJbUG";
 
 try {
     $headers = apache_request_headers();
-    $flagship = new Flagship('bk90qks1tlug042qsqng', 'HwXaeJai242GCC0RGGOym57eSCEimA7A3tkDJbUG');
 
-    if (!isset($headers['x-fs-visitor'])) {
-        $visitorId = $flagship->generateUID();
-    } else {
+    Flagship::Start($envId, $apiKey);
+
+    $visitorId = null;
+
+    if (isset($headers['x-fs-visitor'])) {
         $visitorId = $headers['x-fs-visitor'];
     }
 
-    if($_SERVER['REQUEST_METHOD'] === 'HEAD' || isset($headers['x-fs-experiences'])){
-        $flagship->start(
-            $visitorId,
-            json_encode([
-                'nbBooking' => 4,
-            ])
-        );
-    }
+    $visitor = Flagship::newVisitor($visitorId)->build();
+
+    $visitor->fetchFlags();
+
     $cacheKey = $flagship->getHashKey();
 
     if ($cacheKey === false) {
@@ -45,7 +46,7 @@ try {
     if ($cacheKey == 'optout') {
         echo 'Global Cache 🔥 <br />';
     }
-    echo '<button>'.$flagship->getFlag('restaurant_cta_review_text', 'Leave a Review').'</button>';
+    echo '<button>' . $flagship->getFlag('restaurant_cta_review_text', 'Leave a Review') . '</button>';
 } catch (\Throwable $th) {
     throw $th;
 }
