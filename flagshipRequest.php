@@ -4,10 +4,11 @@ class Flagship
 {
     private $envId;
     private $apiKey;
-    
+
     protected $decision = null;
 
-    public function __construct($envId, $apiKey) {
+    public function __construct($envId, $apiKey)
+    {
         $this->envId = $envId;
         $this->apiKey = $apiKey;
     }
@@ -25,7 +26,7 @@ class Flagship
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>
-                '{
+            '{
                     "visitor_id": "' .
                 $visitorID .
                 '",
@@ -70,20 +71,14 @@ class Flagship
         }
         $experiences = [];
         foreach ($this->decision as $flag) {
-            $experiences[$flag->metadata->campaignId] =
-                $flag->metadata->variationId;
+            $experience = "{$flag->metadata->campaignId}:{$flag->metadata->variationId}";
+            if (in_array($experience, $experiences)) {
+                continue;
+            }
+            $experiences[] = $experience;
         }
 
-        return implode(
-            '|',
-            array_map(
-                function ($v, $k) {
-                    return sprintf('%s:%s', $k, $v);
-                },
-                $experiences,
-                array_keys($experiences)
-            )
-        );
+        return implode("|", $experiences);
     }
 
     public function getFlag($key, $default)

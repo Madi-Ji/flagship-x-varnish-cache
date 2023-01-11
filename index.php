@@ -3,8 +3,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Flagship\Flagship;
 
-$envId = "bk90qks1tlug042qsqng";
-$apiKey = "HwXaeJai242GCC0RGGOym57eSCEimA7A3tkDJbUG";
+$envId = "";
+$apiKey = "";
 
 try {
     $headers = apache_request_headers();
@@ -24,21 +24,19 @@ try {
 
     $visitor->fetchFlags();
 
-    if ($_SERVER['REQUEST_METHOD'] === 'HEAD' || isset($headers['x-fs-experiences'])) {
+    $experiences = [];
 
-        $experiences = [];
-        foreach ($visitor->getFlagsDTO() as $value) {
-            $experience = "{$value->getCampaignId()}:{$value->getVariationId()}";
-            if (in_array($experience, $experiences)) {
-                continue;
-            }
-            $experiences[] = $experience;
+    foreach ($visitor->getFlagsDTO() as $value) {
+        $experience = "{$value->getCampaignId()}:{$value->getVariationId()}";
+        if (in_array($experience, $experiences)) {
+            continue;
         }
-        if (count($experiences)) {
-            $cacheHashKey = implode("|", $experiences);
-        }
+        $experiences[] = $experience;
     }
 
+    if (count($experiences)) {
+        $cacheHashKey = implode("|", $experiences);
+    }
 
     if (!$cacheHashKey) {
         $cacheHashKey = 'optout';
@@ -46,16 +44,13 @@ try {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
-        if ($cacheHashKey == 'optout') {
-            $experiencesCookie = $cacheHashKey;
-        } else {
-            $experiencesCookie = $visitorId . '@' . $cacheHashKey;
-        }
         header('x-fs-visitor: ' . $visitorId);
         header('x-fs-experiences: ' . $cacheHashKey);
         exit();
     }
 
+    header('x-fs-visitor: ' . $visitorId);
+    header('x-fs-experiences: ' . $cacheHashKey);
     header('Cache-Control: max-age=1, s-maxage=600');
 
     echo '<pre>';
