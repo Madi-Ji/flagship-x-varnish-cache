@@ -18,7 +18,7 @@ try {
     }
 
     $cacheHashKey = null;
-    $visitor = Flagship::newVisitor($visitorId)->build();
+    $visitor = Flagship::newVisitor($visitorId)->withContext(['nbBooking' => 4])->build();
 
     $visitorId = $visitor->getVisitorId();
 
