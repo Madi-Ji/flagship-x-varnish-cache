@@ -15,7 +15,13 @@ services:
     depends_on:
       - "php"
   php:
-    image: php:8.1-apache
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: github.com/flagship-io/flagship-varnish-strategy
+    environment:
+      ENV_ID:
+      API_KEY:
     container_name: php
     volumes:
       - ".:/var/www/html/"

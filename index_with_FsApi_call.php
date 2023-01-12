@@ -1,8 +1,8 @@
 <?php
 require_once './flagshipRequest.php';
 
-$envId = "";
-$apiKey = "";
+$envId = getenv("ENV_ID");
+$apiKey = getenv("API_KEY");
 
 try {
     $headers = apache_request_headers();
