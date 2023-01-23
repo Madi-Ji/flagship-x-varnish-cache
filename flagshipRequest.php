@@ -78,7 +78,8 @@ class Flagship
             $experiences[] = $experience;
         }
 
-        return implode("|", $experiences);
+        $experiences = implode("|", $experiences);
+        return hash("sha256", $experiences);
     }
 
     public function getFlag($key, $default)
