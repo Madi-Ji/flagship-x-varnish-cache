@@ -41,6 +41,7 @@ sub vcl_init {
 
 sub vcl_recv {
 
+std.log("FS vcl_recv");
 	set req.backend_hint = vdir.backend(); # send all traffic to the vdir director
 
 	if (req.restarts == 0) {
@@ -128,32 +129,27 @@ sub vcl_recv {
 
 	# FS_recv
 	# Method GET - The visitor main interaction and very first.
-	if(req.method == "GET" && req.http.Cookie !~ "fs-experiences=ignore-me@optout") {
+	if(req.method == "GET") {
 
 		# Known FS (Cookie)
 			# Parse Cookie
 			# Header exist
-		std.log("FS KNOWN");
+
 		if(req.http.Cookie ~ "fs-experiences"){
 			std.log("PARSE COOKIES");
-			# Original Regex => [aA-zZ\d\-]+@(([aA-zZ\d]+:[aA-zZ\d]+;?)+)
-			# With value URLencoded => ([aA-zZ\d\-]+)[@|%40](([aA-zZ\d]+[:|%3A][aA-zZ\d]+[\||%7C]?)+) => /1 visitorID + /2 Exp-Cache-Key
-			set req.http.x-fs-experiences = regsub(req.http.Cookie, "(.*?)(fs-experiences=)([^;]*)(.*)$", "\3"); # Trunk Cookie to only fs_experiences cookie content
-			if(req.http.x-fs-experiences == regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([0-9a-v]{20}+[:|%3A][0-9a-v]{20}+[\||%7C]?)+)", "\2")) {
-				std.log("[FS] WARNING: Cookie malformed");
-				set req.http.x-fs-visitor = "ignore-me";
-				set req.http.x-fs-experiences = "optout";
-			} else {
-				set req.http.x-fs-visitor = regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([0-9a-v]{20}+[:|%3A][0-9a-v]{20}+[\||%7C]?)+)", "\1"); # Capture VisitorID
-				set req.http.x-fs-experiences = regsub(req.http.x-fs-experiences, "([aA-zZ\d\-]+)[@|%40](([0-9a-v]{20}+[:|%3A][0-9a-v]{20}+[\||%7C]?)+)", "\2"); # Capture [CacheKey]
+			set req.http.x-fs-experiences-cookie = regsub(req.http.Cookie, "(.*)(fs-experiences=)([^;]*)", "\3"); # Trunk Cookie to only fs_experiences cookie content
+			if(req.http.x-fs-experiences-cookie ~ "^(.+)@([A-Fa-f0-9]{64})$") {
+				std.log("FS KNOWN");
+				set req.http.x-fs-visitor = regsub(req.http.x-fs-experiences-cookie, "^(.+)@([A-Fa-f0-9]{64})$", "\1"); # Capture VisitorID
+				set req.http.x-fs-experiences = regsub(req.http.x-fs-experiences-cookie, "^(.+)@([A-Fa-f0-9]{64})$", "\2"); # Capture [CacheKey]
+				std.log("HEADER AVAILABLE");
 			}
-			std.log("HEADER AVAILABLE");
 		}
 
 		# Unknown FS
-			# Pass then restart
-		std.log("FS UNKNOWN");
+		# Pass then restart
 		if(!req.http.x-fs-experiences) {
+			std.log("FS UNKNOWN");
 			if(req.restarts == 0) { # security, set restart N
 				std.log("READY FOR RESTART");
 				# Giving the signal
@@ -161,19 +157,6 @@ sub vcl_recv {
 				return (pass); # See you in #2 OR RESTART ?
 			}
 		}
-
-
-		# Restart x-make-decision + header || Headers exist
-			# Optout -
-			# Continue
-		if(req.http.x-fs-take-decision || req.http.x-fs-experiences){
-			if(req.http.x-fs-experiences == "optout"){
-				std.log("OPTOUT: true");
-				unset req.http.x-fs-visitor;
-				unset req.http.x-fs-experiences;
-			}
-		}
-		
 	}
 	# END FS_recv
 
@@ -181,6 +164,8 @@ sub vcl_recv {
 }
 
 sub vcl_hash {
+
+	std.log("FS vcl_hash");
 
 	if (req.http.host) {
 		hash_data(req.http.host);
@@ -201,6 +186,7 @@ sub vcl_hash {
 
 
 sub vcl_backend_fetch {
+		std.log("FS vcl_backend_fetch");
     if (bereq.method == "GET" || bereq.method == "HEAD") {
         unset bereq.body;
     }
@@ -220,6 +206,7 @@ sub vcl_backend_fetch {
 }
 
 sub vcl_deliver {
+		std.log("FS vcl_deliver");
 	# DEBUG Only
 	set resp.http.x-restart = req.restarts;
 
