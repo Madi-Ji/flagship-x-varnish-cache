@@ -3,8 +3,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Flagship\Flagship;
 
-$envId = getenv("ENV_ID");
-$apiKey = getenv("API_KEY");
+$envId = getenv("FS_ENV_ID");
+$apiKey = getenv("FS_API_KEY");
 
 try {
     //Get request headers

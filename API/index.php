@@ -1,8 +1,8 @@
 <?php
 require_once './flagshipRequest.php';
 
-$envId = getenv("ENV_ID");
-$apiKey = getenv("API_KEY");
+$envId = getenv("FS_ENV_ID");
+$apiKey = getenv("fS_API_KEY");
 
 try {
     //Get request headers

@@ -4,7 +4,7 @@ services:
     image: varnish:stable
     container_name: varnish
     volumes:
-      - "./default.vcl:/etc/varnish/default.vcl"
+      - "./config/default.vcl:/etc/varnish/default.vcl"
     ports:
       - "80:80"
     tmpfs:
@@ -17,13 +17,13 @@ services:
   php:
     build:
       context: .
+      args:
+        FS_MODE: API #or API
       dockerfile: ./Dockerfile
     image: github.com/flagship-io/flagship-varnish-strategy
     environment:
-      ENV_ID:
-      API_KEY:
+      FS_ENV_ID: bk90qks1tlug042qsqng
+      FS_API_KEY: HwXaeJai242GCC0RGGOym57eSCEimA7A3tkDJbUG
     container_name: php
-    volumes:
-      - ".:/var/www/html/"
     ports:
       - "8080:80"

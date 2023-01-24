@@ -1,5 +1,9 @@
 FROM php:8.1-apache
-COPY . /var/www/html/
+
+ARG FS_MODE
+
+COPY ./${FS_MODE} /var/www/html/
+
 WORKDIR /var/www/html/
 
 RUN apt-get update
